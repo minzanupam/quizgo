@@ -48,4 +48,5 @@ func (s *Service) signupApiHandler(w http.ResponseWriter, r *http.Request) {
 	if err = session.Save(r, w); err != nil {
 		log.Println(err)
 	}
+	http.Redirect(w, r, "/", http.StatusFound)
 }
