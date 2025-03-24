@@ -7,11 +7,17 @@ templ Index(title string) {
 		<title>{ title }</title>
 	</head>
 		<body>
+			<nav>
+				<a href="/">home</a>
+				<a href="/login">login</a>
+			</nav>
 			{ children... }
 		</body>
 	</html>
 }
 
 templ RootPage(message string) {
-	<div>{ message }</div>
+	@Index("quiz app") {
+		<div>{ message }</div>
+	}
 }
