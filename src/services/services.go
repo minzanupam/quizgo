@@ -1,4 +1,4 @@
-package main
+package services
 
 import (
 	"context"
@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 )
+
 
 type Service struct {
 	Db    *pgx.Conn
@@ -25,7 +26,8 @@ func (s *Service) rootHandler(w http.ResponseWriter, r *http.Request) {
 	page.Render(r.Context(), w)
 }
 
-func main() {
+
+func HttpService() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal(err)
 	}
@@ -40,6 +42,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /login", s.loginPageHandler)
 	mux.HandleFunc("GET /", s.rootHandler)
 
 	http.ListenAndServe(":4000", mux)

@@ -1,5 +1,17 @@
 package views
 
+templ Index(title string) {
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<title>{ title }</title>
+	</head>
+		<body>
+			{ children... }
+		</body>
+	</html>
+}
+
 templ RootPage(message string) {
 	<div>{ message }</div>
 }
