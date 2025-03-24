@@ -36,6 +36,9 @@ func HttpService() {
 	}
 	defer conn.Close(context.Background())
 	store, err := pgstore.NewPGStore(os.Getenv("DATABASE_URL"), []byte(os.Getenv("SESSION_SECRET")))
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer store.Close()
 	store.StopCleanup(store.Cleanup(time.Minute * 5))
 	s := Service{
@@ -48,5 +51,7 @@ func HttpService() {
 	mux.HandleFunc("GET /signup", s.signupPageHandler)
 	mux.HandleFunc("GET /", s.rootHandler)
 
-	http.ListenAndServe(":4000", mux)
+	if err = http.ListenAndServe(":4000", mux); err != nil {
+		log.Fatal(err)
+	}
 }
