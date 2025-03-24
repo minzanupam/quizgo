@@ -34,7 +34,7 @@ func (s *Service) profilePageHandler(w http.ResponseWriter, r *http.Request) {
 	userID, err := authorize(s.Store, r)
 	if err != nil {
 		log.Println(err)
-		w.WriteHeader(http.StatusUnauthorized)
+		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 		return
 	}
 	if userID == 0 {

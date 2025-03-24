@@ -5,5 +5,8 @@ templ ProfilePage(user DBUser) {
 		<div>{ user.ID }</div>
 		<div>{ user.FullName }</div>
 		<div>{ user.Email }</div>
+		<form action="/logout" method="POST">
+			<button>logout</button>
+		</form>
 	}
 }
