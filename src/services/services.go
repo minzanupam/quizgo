@@ -36,6 +36,7 @@ func HttpService() {
 	defer conn.Close(context.Background())
 	store, err := pgstore.NewPGStore(os.Getenv("DATABASE_URL"), []byte(os.Getenv("SESSION_SECRET")))
 	defer store.Close()
+	store.StopCleanup(store.Cleanup(time.Minute * 5))
 	s := Service{
 		Db:    conn,
 		Store: store,
