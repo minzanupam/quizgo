@@ -55,6 +55,7 @@ func HttpService() {
 
 	mux.HandleFunc("POST /login", s.loginApiHandler)
 	mux.HandleFunc("POST /signup", s.signupApiHandler)
+	mux.HandleFunc("POST /logout", s.logoutHandler)
 
 	if err = http.ListenAndServe(":4000", mux); err != nil {
 		log.Fatal(err)
