@@ -7,12 +7,14 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/antonlindstrom/pgstore"
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 )
 
 type Service struct {
-	Db *pgx.Conn
+	Db    *pgx.Conn
+	Store *pgstore.PGStore
 }
 
 func (s *Service) rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,8 +41,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	s := Service {
-		Db: conn,
+	store, err := pgstore.NewPGStore(os.Getenv("DATABASE_URL"), []byte(os.Getenv("SESSION_SECRET")))
+	s := Service{
+		Db:    conn,
+		Store: store,
 	}
 
 	mux := http.NewServeMux()
