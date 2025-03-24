@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"quizgo/src/views"
 
 	"github.com/antonlindstrom/pgstore"
 	"github.com/jackc/pgx/v5"
@@ -18,19 +18,11 @@ type Service struct {
 }
 
 func (s *Service) rootHandler(w http.ResponseWriter, r *http.Request) {
-	page, err := template.ParseFiles("src/views/index.html")
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 	row := s.Db.QueryRow(r.Context(), `SELECT 'hello world from database'`)
 	var message string
 	row.Scan(&message)
-	if err = page.Execute(w, map[string]interface{}{"Message": message}); err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	page := views.RootPage(message)
+	page.Render(r.Context(), w)
 }
 
 func main() {
