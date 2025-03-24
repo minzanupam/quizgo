@@ -12,7 +12,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-
 type Service struct {
 	Db    *pgx.Conn
 	Store *pgstore.PGStore
@@ -26,7 +25,6 @@ func (s *Service) rootHandler(w http.ResponseWriter, r *http.Request) {
 	page.Render(r.Context(), w)
 }
 
-
 func HttpService() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal(err)
@@ -35,7 +33,9 @@ func HttpService() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer conn.Close(context.Background())
 	store, err := pgstore.NewPGStore(os.Getenv("DATABASE_URL"), []byte(os.Getenv("SESSION_SECRET")))
+	defer store.Close()
 	s := Service{
 		Db:    conn,
 		Store: store,
