@@ -1,3 +1,5 @@
+github.com/a-h/templ v0.3.856 h1:rMSlGIaQCqctylqM49VinpN7LlrptrFj0dMbYDj9GEQ=
+github.com/a-h/templ v0.3.856/go.mod h1:qhrhAkRFubE7khxLZHsBFHfX+gWwVNKbzKeF9GlPV4M=
 github.com/antonlindstrom/pgstore v0.0.0-20220421113606-e3a6e3fed12a h1:dIdcLbck6W67B5JFMewU5Dba1yKZA3MsT67i4No/zh0=
 github.com/antonlindstrom/pgstore v0.0.0-20220421113606-e3a6e3fed12a/go.mod h1:Sdr/tmSOLEnncCuXS5TwZRxuk7deH1WXVY8cve3eVBM=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
