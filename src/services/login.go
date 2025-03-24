@@ -50,5 +50,15 @@ func (s *Service) loginApiHandler(w http.ResponseWriter, r *http.Request) {
 	if user.Password != req_password {
 		w.Write([]byte("incorrect email or password"))
 		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	session, err := s.Store.Get(r, "authsession")
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInterServerError)
+	}
+	session.Values["user_id"] = user.ID
+	if err = session.Save(r, w); err != nil {
+		log.Printn(err)
 	}
 }
