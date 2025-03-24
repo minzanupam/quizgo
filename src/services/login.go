@@ -10,7 +10,7 @@ import (
 
 type User struct {
 	ID       int64
-	Name     string
+	FullName string
 	Email    string
 	Password string
 }
