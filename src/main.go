@@ -11,14 +11,21 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func rootHandler(w http.ResponseWriter, r *http.Request) {
+type Service struct {
+	Db *pgx.Conn
+}
+
+func (s *Service) rootHandler(w http.ResponseWriter, r *http.Request) {
 	page, err := template.ParseFiles("src/views/index.html")
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if err = page.Execute(w, nil); err != nil {
+	row := s.Db.QueryRow(r.Context(), `SELECT 'hello world from database'`)
+	var message string
+	row.Scan(&message)
+	if err = page.Execute(w, map[string]interface{}{"Message": message}); err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
@@ -32,10 +39,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	mux := http.NewServeMux()
-	log.Println(conn)
+	s := Service {
+		Db: conn,
+	}
 
-	mux.HandleFunc("GET /", rootHandler)
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /", s.rootHandler)
 
 	http.ListenAndServe(":4000", mux)
 }
