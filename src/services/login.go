@@ -55,10 +55,10 @@ func (s *Service) loginApiHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := s.Store.Get(r, "authsession")
 	if err != nil {
 		log.Println(err)
-		w.WriteHeader(http.StatusInterServerError)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 	session.Values["user_id"] = user.ID
 	if err = session.Save(r, w); err != nil {
-		log.Printn(err)
+		log.Println(err)
 	}
 }

@@ -1,0 +1,12 @@
+package views
+
+templ SignupPage() {
+	@Index("login page") {
+		<form action="/login" method="POST">
+			<label> fullname <input type="text" name="fullname" /> </label>
+			<label> email <input type="email" name="email" /> </label>
+			<label> password <input type="password" name="password" /> </label>
+			<button> login </button>
+		</form>
+	}
+}

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"quizgo/src/views"
+	"time"
 
 	"github.com/antonlindstrom/pgstore"
 	"github.com/jackc/pgx/v5"
@@ -44,6 +45,7 @@ func HttpService() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /login", s.loginPageHandler)
+	mux.HandleFunc("GET /signup", s.signupPageHandler)
 	mux.HandleFunc("GET /", s.rootHandler)
 
 	http.ListenAndServe(":4000", mux)
