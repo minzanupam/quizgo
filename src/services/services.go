@@ -56,10 +56,12 @@ func HttpService() {
 	mux.HandleFunc("GET /signup", s.signupPageHandler)
 	mux.HandleFunc("GET /profile", s.profilePageHandler)
 	mux.HandleFunc("GET /dashboard", s.dashboardPageHandler)
+	mux.HandleFunc("GET /dashboard/quiz", s.quizParentPageHandler)
 
 	mux.HandleFunc("POST /login", s.loginApiHandler)
 	mux.HandleFunc("POST /signup", s.signupApiHandler)
 	mux.HandleFunc("POST /logout", s.logoutHandler)
+	mux.HandleFunc("POST /quiz", s.quizApiHandler)
 
 	if err = http.ListenAndServe(":4000", mux); err != nil {
 		log.Fatal(err)
