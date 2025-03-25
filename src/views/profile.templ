@@ -1,7 +1,7 @@
 package views
 
 templ ProfilePage(user DBUser) {
-	@Index("profile page") {
+	@Index("profile page", true) {
 		<div>{ user.ID }</div>
 		<div>{ user.FullName }</div>
 		<div>{ user.Email }</div>

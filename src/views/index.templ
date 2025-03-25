@@ -1,6 +1,6 @@
 package views
 
-templ Index(title string) {
+templ Index(title string, auth bool) {
 	<!DOCTYPE html>
 	<html>
 	<head>
@@ -9,7 +9,11 @@ templ Index(title string) {
 		<body>
 			<nav>
 				<a href="/">home</a>
-				<a href="/login">login</a>
+				if auth {
+					<a href="/profile">profile</a>
+				} else {
+					<a href="/login">login</a>
+				}
 			</nav>
 			{ children... }
 		</body>
@@ -17,7 +21,7 @@ templ Index(title string) {
 }
 
 templ RootPage(message string) {
-	@Index("quiz app") {
+	@Index("quiz app", true) {
 		<div>{ message }</div>
 	}
 }

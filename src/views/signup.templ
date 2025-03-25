@@ -1,7 +1,7 @@
 package views
 
 templ SignupPage() {
-	@Index("login page") {
+	@Index("login page", false) {
 		<form action="/signup" method="POST">
 			<label> fullname <input type="text" name="fullname" /> </label>
 			<label> email <input type="email" name="email" /> </label>

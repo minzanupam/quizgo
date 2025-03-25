@@ -1,7 +1,7 @@
 package views
 
 templ LoginPage(err error) {
-	@Index("login page") {
+	@Index("login page", false) {
 		<form action="/login" method="POST">
 			if err != nil {
 				<div>{ err.Error() }</div>
