@@ -1,9 +1,17 @@
 package views
 
-templ DashboardPage() {
+templ DashboardPage(quizzes []DBQuiz) {
 	@Index("quiz dashboard", true) {
 		<div>
-			dashboard page
+			<h1>dashboard page</h1>
+			<div>
+				<h3>List of Quizzes</h3>
+				<ol>
+					for _, quiz := range quizzes {
+						<li>{quiz.Title}</li>
+					}
+				</ol>
+			</div>
 		</div>
 	}
 }
