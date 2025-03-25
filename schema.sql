@@ -21,6 +21,7 @@ CREATE TABLE questions (
 
 CREATE TABLE options (
 	ID SERIAL PRIMARY KEY,
+	body VARCHAR NOT NULL,
 	question_id INT NOT NULL,
 	FOREIGN KEY (question_id) REFERENCES questions(ID)
 );
