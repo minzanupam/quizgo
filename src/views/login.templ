@@ -1,11 +1,12 @@
 package views
 
-templ LoginPage(err error) {
+templ LoginPage(err error, redirectUrl string) {
 	@Index("login page", false) {
 		<form action="/login" method="POST">
 			if err != nil {
 				<div>{ err.Error() }</div>
 			}
+			<input type="text" name="redirect_url" value={ redirectUrl } hidden />
 			<label> email <input type="email" name="email" /> </label>
 			<label> password <input type="password" name="password" /> </label>
 			<button> login </button>

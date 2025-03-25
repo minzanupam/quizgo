@@ -17,7 +17,11 @@ type User struct {
 }
 
 func (s *Service) loginPageHandler(w http.ResponseWriter, r *http.Request) {
-	page := views.LoginPage(nil)
+	redirectUrl := r.URL.Query().Get("redirect_url")
+	if redirectUrl == "" {
+		redirectUrl = "/"
+	}
+	page := views.LoginPage(nil, redirectUrl)
 	if err := page.Render(r.Context(), w); err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -37,6 +41,10 @@ func (s *Service) loginApiHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	redirectUrl := r.FormValue("redirect_url")
+	if redirectUrl == "" {
+		redirectUrl = "/"
+	}
 	row := s.Db.QueryRow(r.Context(), `SELECT ID, email, password FROM users WHERE email = $1`, req_email)
 	var user User
 	if err := row.Scan(&user.ID, &user.Email, &user.Password); err != nil {
@@ -45,7 +53,7 @@ func (s *Service) loginApiHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		page := views.LoginPage(fmt.Errorf("email not found"))
+		page := views.LoginPage(fmt.Errorf("email not found"), redirectUrl)
 		if err = page.Render(r.Context(), w); err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -53,7 +61,7 @@ func (s *Service) loginApiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if user.Password != req_password {
-		page := views.LoginPage(fmt.Errorf("incorrect email or password"))
+		page := views.LoginPage(fmt.Errorf("incorrect email or password"), redirectUrl)
 		if err := page.Render(r.Context(), w); err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -69,5 +77,5 @@ func (s *Service) loginApiHandler(w http.ResponseWriter, r *http.Request) {
 	if err = session.Save(r, w); err != nil {
 		log.Println(err)
 	}
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, redirectUrl, http.StatusFound)
 }
