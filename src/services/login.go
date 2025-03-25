@@ -18,6 +18,7 @@ type User struct {
 func (s *Service) loginPageHandler(w http.ResponseWriter, r *http.Request) {
 	page := views.LoginPage()
 	if err := page.Render(r.Context(), w); err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
@@ -39,8 +40,11 @@ func (s *Service) loginApiHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
 	if err := row.Scan(&user.ID, &user.Email, &user.Password); err != nil {
 		if err != pgx.ErrNoRows {
-			w.Write([]byte("email not found"))
-			w.WriteHeader(http.StatusUnauthorized)
+			page := views.LoginPage()
+			if err = page.Render(r.Context(), w); err != nil {
+				log.Println(err)
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 			return
 		}
 		log.Println(err)
@@ -48,8 +52,11 @@ func (s *Service) loginApiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if user.Password != req_password {
-		w.Write([]byte("incorrect email or password"))
-		w.WriteHeader(http.StatusUnauthorized)
+		page := views.LoginPage()
+		if err := page.Render(r.Context(), w); err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 	session, err := s.Store.Get(r, "authsession")
