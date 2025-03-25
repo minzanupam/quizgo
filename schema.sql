@@ -4,3 +4,23 @@ CREATE TABLE users (
 	email VARCHAR NOT NULL UNIQUE,
 	password VARCHAR NOT NULL
 );
+
+CREATE TABLE quizzes (
+	ID SERIAL PRIMARY KEY,
+	title VARCHAR NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+	updated_aT TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE questions (
+	ID SERIAL PRIMARY KEY,
+	body VARCHAR NOT NULL,
+	quiz_id INT NOT NULL,
+	FOREIGN KEY (quiz_id) REFERENCES quizzes(ID)
+);
+
+CREATE TABLE options (
+	ID SERIAL PRIMARY KEY,
+	question_id INT NOT NULL,
+	FOREIGN KEY (question_id) REFERENCES questions(ID)
+);
