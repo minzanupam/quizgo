@@ -20,8 +20,8 @@ templ Index(title string, auth bool) {
 	</html>
 }
 
-templ RootPage(message string) {
-	@Index("quiz app", true) {
+templ RootPage(message string, auth bool) {
+	@Index("quiz app", auth) {
 		<div>{ message }</div>
 	}
 }

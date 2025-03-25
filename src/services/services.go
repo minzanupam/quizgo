@@ -19,10 +19,13 @@ type Service struct {
 }
 
 func (s *Service) rootHandler(w http.ResponseWriter, r *http.Request) {
-	row := s.Db.QueryRow(r.Context(), `SELECT 'hello world from database'`)
-	var message string
-	row.Scan(&message)
-	page := views.RootPage(message)
+	_, err := authorize(s.Store, r)
+	auth := true
+	if err != nil {
+		log.Println(err)
+		auth = false
+	}
+	page := views.RootPage("hey", auth)
 	page.Render(r.Context(), w)
 }
 
