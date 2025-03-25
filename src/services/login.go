@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"quizgo/src/views"
@@ -16,7 +17,7 @@ type User struct {
 }
 
 func (s *Service) loginPageHandler(w http.ResponseWriter, r *http.Request) {
-	page := views.LoginPage()
+	page := views.LoginPage(nil)
 	if err := page.Render(r.Context(), w); err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -40,19 +41,19 @@ func (s *Service) loginApiHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
 	if err := row.Scan(&user.ID, &user.Email, &user.Password); err != nil {
 		if err != pgx.ErrNoRows {
-			page := views.LoginPage()
-			if err = page.Render(r.Context(), w); err != nil {
-				log.Println(err)
-				w.WriteHeader(http.StatusInternalServerError)
-			}
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		page := views.LoginPage(fmt.Errorf("email not found"))
+		if err = page.Render(r.Context(), w); err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 	if user.Password != req_password {
-		page := views.LoginPage()
+		page := views.LoginPage(fmt.Errorf("incorrect email or password"))
 		if err := page.Render(r.Context(), w); err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)

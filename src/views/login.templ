@@ -1,8 +1,11 @@
 package views
 
-templ LoginPage() {
+templ LoginPage(err error) {
 	@Index("login page") {
 		<form action="/login" method="POST">
+			if err != nil {
+				<div>{ err.Error() }</div>
+			}
 			<label> email <input type="email" name="email" /> </label>
 			<label> password <input type="password" name="password" /> </label>
 			<button> login </button>
