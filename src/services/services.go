@@ -19,7 +19,7 @@ type Service struct {
 }
 
 func (s *Service) rootHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := authorize(s.Store, r)
+	_, err := authenticate(s.Store, r)
 	auth := true
 	if err != nil {
 		log.Println(err)

@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Service) dashboardPageHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := authorize(s.Store, r)
+	_, err := authenticate(s.Store, r)
 	if err != nil {
 		log.Println(err)
 		http.Redirect(w, r, "/login?redirect_url=%2Fdashboard", http.StatusTemporaryRedirect)

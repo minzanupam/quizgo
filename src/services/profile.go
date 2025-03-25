@@ -18,7 +18,7 @@ func convertToDbUser(user User) views.DBUser {
 	return db_user
 }
 
-func authorize(store *pgstore.PGStore, r *http.Request) (int64, error) {
+func authenticate(store *pgstore.PGStore, r *http.Request) (int64, error) {
 	session, err := store.Get(r, "authsession")
 	if err != nil {
 		return 0, err
@@ -31,7 +31,7 @@ func authorize(store *pgstore.PGStore, r *http.Request) (int64, error) {
 }
 
 func (s *Service) profilePageHandler(w http.ResponseWriter, r *http.Request) {
-	userID, err := authorize(s.Store, r)
+	userID, err := authenticate(s.Store, r)
 	if err != nil {
 		log.Println(err)
 		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
