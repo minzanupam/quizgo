@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"quizgo/src/views"
+	"strconv"
 )
 
 func (s *Service) quizParentPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,4 +41,12 @@ func (s *Service) quizApiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/dashboard/quiz/%d", int(quizID)), http.StatusFound)
+}
+
+func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
+	page := views.QuizPage()
+	if err := page.Render(r.Context(), w); err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }

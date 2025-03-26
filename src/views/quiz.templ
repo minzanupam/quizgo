@@ -1,10 +1,18 @@
 package views
 
 templ QuizParentPage() {
-	@Index("quiz", true) {
+	@Index("new quiz", true) {
 		<form action="/quiz" method="POST">
 			<label> quiz title <input type="text" name="quiz_title" /> </label>
 			<button> create </button>
 		</form>
+	}
+}
+
+templ QuizPage() {
+	@Index("quiz", true) {
+		<div>
+			quiz page
+		</div>
 	}
 }
