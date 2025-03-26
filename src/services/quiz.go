@@ -21,13 +21,23 @@ func (s *Service) quizParentPageHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *Service) quizApiHandler(w http.ResponseWriter, r *http.Request) {
-	quizTitle := r.FormValue("title")
-	row := s.Db.QueryRow(r.Context(), `INSERT INTO (title) VALUES ($1) RETURNING ID`, quizTitle)
+	userID, err := authenticate(s.Store, r)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	quizTitle := r.FormValue("quiz_title")
+	if quizTitle == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	row := s.Db.QueryRow(r.Context(), `INSERT INTO quizzes (title, owner_id) VALUES ($1, $2) RETURNING ID`, quizTitle, userID)
 	var quizID int64
 	if err := row.Scan(&quizID); err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, fmt.Sprintf("/dashboard/quiz/%ld", quizID), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, fmt.Sprintf("/dashboard/quiz/%d", int(quizID)), http.StatusFound)
 }
