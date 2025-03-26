@@ -1,7 +1,11 @@
 package main
 
-import "quizgo/src/services"
+import (
+	"log"
+	"quizgo/src/services"
+)
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	services.HttpService()
 }

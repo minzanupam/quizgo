@@ -9,6 +9,7 @@ templ Index(title string, auth bool) {
 		<body>
 			<nav>
 				<a href="/">home</a>
+				<a href="/dashboard">dashboard</a>
 				if auth {
 					<a href="/profile">profile</a>
 				} else {

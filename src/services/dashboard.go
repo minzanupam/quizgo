@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"quizgo/src/views"
+	"time"
 )
 
 func (s *Service) dashboardPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -21,6 +22,7 @@ func (s *Service) dashboardPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	rows, err := s.Db.Query(r.Context(), `SELECT quizzes.ID, title, 
 		created_at, updated_at FROM quizzes WHERE owner_id = $1`, userID)
+	defer rows.Close()
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -29,8 +31,16 @@ func (s *Service) dashboardPageHandler(w http.ResponseWriter, r *http.Request) {
 	var quizzes []views.DBQuiz
 	for rows.Next() {
 		var quiz views.DBQuiz
-		rows.Scan(&quiz.ID, &quiz.Title, &quiz.CreatedAt, &quiz.UpdatedAt)
+		var createdAt time.Time
+		var updatedAt time.Time
+		if err = rows.Scan(&quiz.ID, &quiz.Title, &createdAt, &updatedAt); err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		quiz.Owner = user
+		quiz.CreatedAt = createdAt.Format(time.RFC3339)
+		quiz.UpdatedAt = updatedAt.Format(time.RFC3339)
 		quizzes = append(quizzes, quiz)
 	}
 	page := views.DashboardPage(quizzes)
