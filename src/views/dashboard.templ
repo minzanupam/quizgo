@@ -8,7 +8,7 @@ templ DashboardPage(quizzes []DBQuiz) {
 				<h3>List of Quizzes</h3>
 				<ol>
 					for _, quiz := range quizzes {
-						<li>{quiz.Title}</li>
+						<li><a href={templ.URL("/dashboard/quiz/" + quiz.ID)}> {quiz.Title} </a></li>
 					}
 				</ol>
 			</div>
