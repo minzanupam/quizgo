@@ -9,10 +9,14 @@ templ QuizParentPage() {
 	}
 }
 
-templ QuizPage() {
+templ QuizPage(quiz DBQuiz) {
 	@Index("quiz", true) {
 		<div>
-			quiz page
+			<h1>quiz page</h1>
+			<div>{quiz.ID}</div>
+			<div>{quiz.Title}</div>
+			<div>{quiz.CreatedAt}</div>
+			<div>{quiz.UpdatedAt}</div>
 		</div>
 	}
 }
