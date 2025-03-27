@@ -11,6 +11,11 @@ templ QuizParentPage() {
 
 templ QuizPage(quiz DBQuiz) {
 	@Index("quiz", true) {
+		<script>
+function cleanform() {
+	document.getElementById("question_body").value = "";
+}
+		</script>
 		<div>
 			<h1>quiz page</h1>
 			<div>{quiz.ID}</div>
@@ -23,8 +28,12 @@ templ QuizPage(quiz DBQuiz) {
 				for _, question := range quiz.Questions {
 					@Question(question)
 				}
-				<form hx-post={string(templ.URL("/quiz/" + quiz.ID + "/question"))} hx-swap="beforebegin">
-					<input type="text" name="question_body" />
+				<form
+					hx-post={string(templ.URL("/quiz/" + quiz.ID + "/question"))} y
+					hx-swap="beforebegin"
+					hx-on::after-request="cleanform()"
+				>
+					<input type="text" name="question_body" id="question_body" />
 					<button>Add Question</button>
 				</form>
 			</ul>

@@ -44,6 +44,30 @@ func (s *Service) quizApiHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/dashboard/quiz/%d", int(quizID)), http.StatusFound)
 }
 
+type QuizRow struct {
+	ID           int64
+	Title        string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	QuestionID   int64
+	QuestionBody string
+}
+
+func parseRowsToQuiz(rows []QuizRow) views.DBQuiz {
+	var quiz views.DBQuiz
+	for _, row := range rows {
+		quiz.ID = strconv.Itoa(int(row.ID))
+		quiz.Title = row.Title
+		quiz.CreatedAt = row.CreatedAt.Format(time.RFC3339)
+		quiz.UpdatedAt = row.UpdatedAt.Format(time.RFC3339)
+		quiz.Questions = append(quiz.Questions, views.DBQuestion{
+			ID:   strconv.Itoa(int(row.QuestionID)),
+			Body: row.QuestionBody,
+		})
+	}
+	return quiz
+}
+
 func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 	userID, err := authenticate(s.Store, r)
 	if err != nil {
@@ -57,19 +81,28 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	row := s.Db.QueryRow(r.Context(), `SELECT title, created_at, updated_at
-		FROM quizzes WHERE ID = $1 AND owner_id = $2`, quizID, userID)
-
-	var quiz views.DBQuiz
-	var createdAt time.Time
-	var updatedAt time.Time
-	if err = row.Scan(&quiz.Title, &createdAt, &updatedAt); err != nil {
+	rows, err := s.Db.Query(r.Context(), `SELECT quizzes.ID, title,
+		created_at, updated_at, questions.ID, body FROM quizzes INNER
+	JOIN questions ON quizzes.ID = questions.quiz_id WHERE quizzes.ID = $1
+	AND owner_id = $2;`, quizID, userID)
+	if err != nil {
 		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
-	quiz.ID = strconv.Itoa(quizID)
-	quiz.CreatedAt = createdAt.Format(time.RFC3339)
-	quiz.UpdatedAt = updatedAt.Format(time.RFC3339)
-
+	var quiz_rows []QuizRow
+	for rows.Next() {
+		var quiz QuizRow
+		err = rows.Scan(&quiz.ID, &quiz.Title, &quiz.CreatedAt,
+			&quiz.UpdatedAt, &quiz.QuestionID, &quiz.QuestionBody)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		quiz_rows = append(quiz_rows, quiz)
+	}
+	quiz := parseRowsToQuiz(quiz_rows)
 	page := views.QuizPage(quiz)
 	if err := page.Render(r.Context(), w); err != nil {
 		log.Println(err)
