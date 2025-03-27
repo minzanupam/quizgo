@@ -17,6 +17,17 @@ templ QuizPage(quiz DBQuiz) {
 			<div>{quiz.Title}</div>
 			<div>{quiz.CreatedAt}</div>
 			<div>{quiz.UpdatedAt}</div>
+
+			<h2>List of Questions</h2>
+			<ul>
+				for _, question := range quiz.Questions {
+					@Question(question)
+				}
+				<form hx-post={string(templ.URL("/quiz/" + quiz.ID + "/question"))} hx-swap="beforebegin">
+					<input type="text" name="question_body" />
+					<button>Add Question</button>
+				</form>
+			</ul>
 		</div>
 	}
 }
