@@ -49,8 +49,8 @@ type QuizRow struct {
 	Title        string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	QuestionID   int64
-	QuestionBody string
+	QuestionID   *int64
+	QuestionBody *string
 }
 
 func parseRowsToQuiz(rows []QuizRow) views.DBQuiz {
@@ -60,10 +60,12 @@ func parseRowsToQuiz(rows []QuizRow) views.DBQuiz {
 		quiz.Title = row.Title
 		quiz.CreatedAt = row.CreatedAt.Format(time.RFC3339)
 		quiz.UpdatedAt = row.UpdatedAt.Format(time.RFC3339)
-		quiz.Questions = append(quiz.Questions, views.DBQuestion{
-			ID:   strconv.Itoa(int(row.QuestionID)),
-			Body: row.QuestionBody,
-		})
+		if row.QuestionID != nil {
+			quiz.Questions = append(quiz.Questions, views.DBQuestion{
+				ID:   strconv.Itoa(int(*row.QuestionID)),
+				Body: *row.QuestionBody,
+			})
+		}
 	}
 	return quiz
 }
@@ -82,7 +84,7 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rows, err := s.Db.Query(r.Context(), `SELECT quizzes.ID, title,
-		created_at, updated_at, questions.ID, body FROM quizzes INNER
+		created_at, updated_at, questions.ID, body FROM quizzes LEFT
 	JOIN questions ON quizzes.ID = questions.quiz_id WHERE quizzes.ID = $1
 	AND owner_id = $2;`, quizID, userID)
 	if err != nil {
@@ -102,6 +104,7 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		quiz_rows = append(quiz_rows, quiz)
 	}
+	log.Println(quiz_rows)
 	quiz := parseRowsToQuiz(quiz_rows)
 	page := views.QuizPage(quiz)
 	if err := page.Render(r.Context(), w); err != nil {
