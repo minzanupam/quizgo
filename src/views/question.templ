@@ -1,8 +1,13 @@
 package views
 
 templ Question(question DBQuestion) {
-	<li>
+	<li x-data="{open: false}">
 		{question.Body}
+		<button @click="open = !open">option</button>
+		<form hx-post="/quiz/{quiz_id}/{question_id}/option" x-show="open">
+			<input type="text" name="question_option" />
+			<button>add option</button>
+		</form>
 		for _, option := range question.Options {
 			<div>{option.ID} {option.Body}</div>
 		}
