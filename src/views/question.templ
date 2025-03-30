@@ -1,5 +1,10 @@
 package views
 
 templ Question(question DBQuestion) {
-	<li>{question.Body}</li>
+	<li>
+		{question.Body}
+		for _, option := range question.Options {
+			<div>{option.ID} {option.Body}</div>
+		}
+	</li>
 }
