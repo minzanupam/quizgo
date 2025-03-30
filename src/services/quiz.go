@@ -104,7 +104,6 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		quiz_rows = append(quiz_rows, quiz)
 	}
-	log.Println(quiz_rows)
 	quiz := parseRowsToQuiz(quiz_rows)
 	page := views.QuizPage(quiz)
 	if err := page.Render(r.Context(), w); err != nil {
