@@ -29,6 +29,13 @@ func (s *Service) rootHandler(w http.ResponseWriter, r *http.Request) {
 	page.Render(r.Context(), w)
 }
 
+func LoggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r.Method, r.URL)
+		next.ServeHTTP(w, r)
+	})
+}
+
 func HttpService() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal(err)
@@ -68,7 +75,7 @@ func HttpService() {
 	mux.HandleFunc("POST /quiz", s.quizApiHandler)
 	mux.HandleFunc("POST /quiz/{quiz_id}/question", s.questionApiAddHandler)
 
-	if err = http.ListenAndServe(":4000", mux); err != nil {
+	if err = http.ListenAndServe(":4000", LoggingMiddleware(mux)); err != nil {
 		log.Fatal(err)
 	}
 }
