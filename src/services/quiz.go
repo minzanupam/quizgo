@@ -68,9 +68,10 @@ func parseRowsToQuiz(rows []QuizRow) (views.DBQuiz, error) {
 	if row1.QuestionID == nil {
 		return quiz, nil
 	}
+	pqi := 0 // previous question index
 	for i, row := range rows {
-		if i > 0 && quiz.Questions[i-1].ID == strconv.Itoa(int(*row.QuestionID)) && row.OptionID != nil {
-			quiz.Questions[i-1].Options = append(quiz.Questions[i-1].Options, views.DBOption{
+		if i > 0 && quiz.Questions[pqi-1].ID == strconv.Itoa(int(*row.QuestionID)) && row.OptionID != nil {
+			quiz.Questions[pqi-1].Options = append(quiz.Questions[pqi-1].Options, views.DBOption{
 				ID:   strconv.Itoa(int(*row.OptionID)),
 				Body: *row.OptionBody,
 			})
@@ -88,6 +89,7 @@ func parseRowsToQuiz(rows []QuizRow) (views.DBQuiz, error) {
 			Body:    *row.QuestionBody,
 			Options: options,
 		})
+		pqi += 1
 	}
 	return quiz, nil
 }
