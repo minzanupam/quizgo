@@ -17,7 +17,7 @@ function cleanform() {
 }
 		</script>
 		<script src="/static/alpine.min.js" defer></script>
-		<div>
+		<div x-data="{open: false}">
 			<h1>quiz page</h1>
 			<div>{quiz.ID}</div>
 			<div>{quiz.Title}</div>
@@ -25,18 +25,20 @@ function cleanform() {
 			<div>{quiz.UpdatedAt}</div>
 
 			<h2>List of Questions</h2>
+			<button @click="open = !open">add questions</button>
 			<form
 				hx-post={string(templ.URL("/quiz/" + quiz.ID + "/question"))} y
 				hx-swap="afterbegin"
 				hx-on::after-request="cleanform()"
 				hx-target="#question-list"
+				x-show="open"
 			>
 				<input type="text" name="question_body" id="question_body" />
 				<button>Add Question</button>
 			</form>
 			<ul id="question-list">
 				for _, question := range quiz.Questions {
-					@Question(question)
+					@Question(quiz.ID, question)
 				}
 			</ul>
 		</div>

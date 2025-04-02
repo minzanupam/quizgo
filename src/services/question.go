@@ -54,6 +54,6 @@ func (s *Service) questionApiAddHandler(w http.ResponseWriter, r *http.Request) 
 		ID:   strconv.Itoa(int(questionID)),
 		Body: questionBody,
 	}
-	component := views.Question(question)
+	component := views.Question(strconv.Itoa(quizID), question)
 	component.Render(r.Context(), w)
 }
