@@ -74,6 +74,7 @@ func HttpService() {
 	mux.HandleFunc("POST /logout", s.logoutHandler)
 	mux.HandleFunc("POST /quiz", s.quizApiHandler)
 	mux.HandleFunc("POST /quiz/{quiz_id}/question", s.questionApiAddHandler)
+	mux.HandleFunc("POST /quiz/{quiz_id}/{question_id}/option", s.optionAddNewApiHandle)
 
 	if err = http.ListenAndServe(":4000", LoggingMiddleware(mux)); err != nil {
 		log.Fatal(err)

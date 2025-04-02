@@ -5,7 +5,7 @@ templ Question(quizID string, question DBQuestion) {
 		{question.Body}
 		<button @click="open = !open">option</button>
 		<form hx-post={"/quiz/" + quizID + "/" + question.ID + "/option"} x-show="open">
-			<input type="text" name="question_option" />
+			<input type="text" name="option_body" />
 			<button>add option</button>
 		</form>
 		for _, option := range question.Options {
