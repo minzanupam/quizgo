@@ -51,23 +51,45 @@ type QuizRow struct {
 	UpdatedAt    time.Time
 	QuestionID   *int64
 	QuestionBody *string
+	OptionID     *int64
+	OptionBody   *string
 }
 
-func parseRowsToQuiz(rows []QuizRow) views.DBQuiz {
+func parseRowsToQuiz(rows []QuizRow) (views.DBQuiz, error) {
 	var quiz views.DBQuiz
-	for _, row := range rows {
-		quiz.ID = strconv.Itoa(int(row.ID))
-		quiz.Title = row.Title
-		quiz.CreatedAt = row.CreatedAt.Format(time.RFC3339)
-		quiz.UpdatedAt = row.UpdatedAt.Format(time.RFC3339)
-		if row.QuestionID != nil {
-			quiz.Questions = append(quiz.Questions, views.DBQuestion{
-				ID:   strconv.Itoa(int(*row.QuestionID)),
-				Body: *row.QuestionBody,
+	if len(rows) < 1 {
+		return views.DBQuiz{}, fmt.Errorf("failed to parse rows with Error: insuffient number of rows")
+	}
+	row1 := rows[0]
+	quiz.ID = strconv.Itoa(int(row1.ID))
+	quiz.Title = row1.Title
+	quiz.CreatedAt = row1.CreatedAt.Format(time.RFC3339)
+	quiz.UpdatedAt = row1.UpdatedAt.Format(time.RFC3339)
+	if row1.QuestionID == nil {
+		return quiz, nil
+	}
+	for i, row := range rows {
+		if i > 0 && quiz.Questions[i-1].ID == strconv.Itoa(int(*row.QuestionID)) && row.OptionID != nil {
+			quiz.Questions[i-1].Options = append(quiz.Questions[i-1].Options, views.DBOption{
+				ID:   strconv.Itoa(int(*row.OptionID)),
+				Body: *row.OptionBody,
+			})
+			continue
+		}
+		options := make([]views.DBOption, 0)
+		if row.OptionID != nil {
+			options = append(options, views.DBOption{
+				ID:   strconv.Itoa(int(*row.OptionID)),
+				Body: *row.OptionBody,
 			})
 		}
+		quiz.Questions = append(quiz.Questions, views.DBQuestion{
+			ID:      strconv.Itoa(int(*row.QuestionID)),
+			Body:    *row.QuestionBody,
+			Options: options,
+		})
 	}
-	return quiz
+	return quiz, nil
 }
 
 func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -83,10 +105,25 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	rows, err := s.Db.Query(r.Context(), `SELECT quizzes.ID, title,
-		created_at, updated_at, questions.ID, body FROM quizzes LEFT
-	JOIN questions ON quizzes.ID = questions.quiz_id WHERE quizzes.ID = $1
-	AND owner_id = $2;`, quizID, userID)
+
+	rows, err := s.Db.Query(r.Context(), `
+		SELECT
+			quizzes.ID, quizzes.title, quizzes.created_at, quizzes.updated_at,
+			questions.ID, questions.body, options.ID, options.body
+		FROM
+			quizzes
+		LEFT JOIN
+			questions
+		ON
+			quizzes.ID = questions.quiz_id
+		LEFT JOIN
+			options
+		ON
+			questions.ID = options.question_id
+		WHERE
+			quizzes.ID = $1
+			AND owner_id = $2
+	`, quizID, userID)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -94,17 +131,22 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var quiz_rows []QuizRow
 	for rows.Next() {
-		var quiz QuizRow
-		err = rows.Scan(&quiz.ID, &quiz.Title, &quiz.CreatedAt,
-			&quiz.UpdatedAt, &quiz.QuestionID, &quiz.QuestionBody)
+		var row QuizRow
+		err = rows.Scan(&row.ID, &row.Title, &row.CreatedAt,
+			&row.UpdatedAt, &row.QuestionID, &row.QuestionBody, &row.OptionID, &row.OptionBody)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		quiz_rows = append(quiz_rows, quiz)
+		quiz_rows = append(quiz_rows, row)
 	}
-	quiz := parseRowsToQuiz(quiz_rows)
+	quiz, err := parseRowsToQuiz(quiz_rows)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	page := views.QuizPage(quiz)
 	if err := page.Render(r.Context(), w); err != nil {
 		log.Println(err)
