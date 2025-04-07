@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"quizgo/src/views"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -60,6 +61,18 @@ func parseRowsToQuiz(rows []QuizRow) (views.DBQuiz, error) {
 	if len(rows) < 1 {
 		return views.DBQuiz{}, fmt.Errorf("failed to parse rows with Error: insuffient number of rows")
 	}
+	sort.Slice(rows, func(i, j int) bool {
+		if rows[i].ID != rows[j].ID {
+			return rows[i].ID < rows[j].ID
+		}
+		if rows[i].QuestionID != nil && rows[j].QuestionID != nil && *rows[i].QuestionID != *rows[j].QuestionID {
+			return *rows[i].QuestionID < *rows[j].QuestionID
+		}
+		if rows[i].OptionID != nil && rows[j].OptionID != nil && *rows[i].OptionID != *rows[j].OptionID {
+			return *rows[i].OptionID < *rows[j].OptionID
+		}
+		return false
+	})
 	row1 := rows[0]
 	quiz.ID = strconv.Itoa(int(row1.ID))
 	quiz.Title = row1.Title
