@@ -31,4 +31,10 @@ func (s *Service) optionAddNewApiHandle(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	option.Body = optionBody
+	compontent := views.OptionCompontent(option)
+	if err = compontent.Render(r.Context(), w); err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
