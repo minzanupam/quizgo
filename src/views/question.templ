@@ -1,10 +1,20 @@
 package views
 
 templ Question(quizID string, question DBQuestion) {
-	<li x-data="{open: false}">
-		{question.Body}
-		<button @click="open = !open">option</button>
-		<form hx-post={"/quiz/" + quizID + "/" + question.ID + "/option"} hx-swap="afterend" x-show="open">
+	<li x-data="{option_open: false, question_edit: false}">
+		<div id={"question-" + question.ID}>
+			<div x-show="!question_edit" id="">
+				{question.Body}
+				<button @click="question_edit = !question_edit">edit</button>
+			</div>
+			<form hx-put="/quiz" x-show="question_edit" hx-target={"#question-" + question.ID}>
+				<input type="text" name="question_body" value={question.Body} />
+				<button type="submit">done</button>
+				<button @click="question_edit = false" type="button">cancel</button>
+			</form>
+		</div>
+		<button @click="option_open = !option_open">option</button>
+		<form hx-post={"/quiz/" + quizID + "/" + question.ID + "/option"} hx-swap="afterend" x-show="option_open">
 			<input type="text" name="option_body" />
 			<button>add option</button>
 		</form>
@@ -12,4 +22,11 @@ templ Question(quizID string, question DBQuestion) {
 			<div>{option.ID} {option.Body}</div>
 		}
 	</li>
+}
+
+templ QuestionBody(questionBody string) {
+	<div x-show="!question_edit" >
+		{questionBody}
+		<button @click="question_edit = !question_edit">edit</button>
+	</div>
 }

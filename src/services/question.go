@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -56,4 +57,38 @@ func (s *Service) questionApiAddHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	component := views.Question(strconv.Itoa(quizID), question)
 	component.Render(r.Context(), w)
+}
+
+func (s *Service) questionUpdateNameHandle(w http.ResponseWriter, r *http.Request) {
+	questionBody := r.FormValue("question_body")
+	quizID, err := strconv.Atoi(r.PathValue("quiz_id"))
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	questionID, err := strconv.Atoi(r.PathValue("question_id"))
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if questionBody == "" {
+		log.Println("empty question body")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	_, err = s.Db.Exec(context.Background(), `UPDATE questions SET body
+	= $1 WHERE quiz_id = $2 and ID = $3`, questionBody, quizID, questionID)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	compontent := views.QuestionBody(questionBody)
+	if err = compontent.Render(r.Context(), w); err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
