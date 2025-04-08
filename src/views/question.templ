@@ -1,32 +1,16 @@
 package views
 
 templ Question(quizID string, question DBQuestion) {
-	<li x-data="{option_open: false, question_edit: false}">
-		<div id={"question-" + question.ID}>
-			<div x-show="!question_edit" id="">
-				{question.Body}
-				<button @click="question_edit = !question_edit">edit</button>
-			</div>
-			<form hx-put="/quiz" x-show="question_edit" hx-target={"#question-" + question.ID}>
-				<input type="text" name="question_body" value={question.Body} />
-				<button type="submit">done</button>
-				<button @click="question_edit = false" type="button">cancel</button>
-			</form>
-		</div>
-		<button @click="option_open = !option_open">option</button>
-		<form hx-post={"/quiz/" + quizID + "/" + question.ID + "/option"} hx-swap="afterend" x-show="option_open">
+	<li class="question-block">
+		{question.Body}
+		<ol type="a" id={"option-list-" + question.ID}>
+			for _, option := range question.Options {
+				<li>{option.Body}</li>
+			}
+		</ol>
+		<form hx-post={"/quiz/" + quizID + "/" + question.ID + "/option"} hx-swap="beforeend" hx-target={"#option-list-" + question.ID}>
 			<input type="text" name="option_body" />
 			<button>add option</button>
 		</form>
-		for _, option := range question.Options {
-			<div>{option.ID} {option.Body}</div>
-		}
 	</li>
-}
-
-templ QuestionBody(questionBody string) {
-	<div x-show="!question_edit" >
-		{questionBody}
-		<button @click="question_edit = !question_edit">edit</button>
-	</div>
 }

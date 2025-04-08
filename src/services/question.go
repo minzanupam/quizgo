@@ -85,10 +85,4 @@ func (s *Service) questionUpdateNameHandle(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	compontent := views.QuestionBody(questionBody)
-	if err = compontent.Render(r.Context(), w); err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 }

@@ -17,6 +17,13 @@ function cleanform() {
 }
 		</script>
 		<script src="/static/alpine.min.js" defer></script>
+		<style>
+.question-block {
+	padding: 0.5rem;
+	padding-left: 2rem;
+	border: 1px solid white;
+}
+		</style>
 		<div x-data="{open: false}">
 			<h1>quiz page</h1>
 			<div>{quiz.ID}</div>
@@ -36,11 +43,11 @@ function cleanform() {
 				<input type="text" name="question_body" id="question_body" />
 				<button>Add Question</button>
 			</form>
-			<ul id="question-list">
+			<ol id="question-list">
 				for _, question := range quiz.Questions {
 					@Question(quiz.ID, question)
 				}
-			</ul>
+			</ol>
 		</div>
 	}
 }
