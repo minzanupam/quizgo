@@ -68,6 +68,7 @@ func HttpService() {
 	mux.HandleFunc("GET /dashboard", s.dashboardPageHandler)
 	mux.HandleFunc("GET /dashboard/quiz", s.quizParentPageHandler)
 	mux.HandleFunc("GET /dashboard/quiz/{id}", s.quizPageHandler)
+	mux.HandleFunc("GET /dashboard/quiz/question/{question_id}/edit", s.questionEditPage)
 
 	mux.HandleFunc("POST /login", s.loginApiHandler)
 	mux.HandleFunc("POST /signup", s.signupApiHandler)

@@ -86,3 +86,50 @@ func (s *Service) questionUpdateNameHandle(w http.ResponseWriter, r *http.Reques
 		return
 	}
 }
+
+func (s *Service) questionEditPage(w http.ResponseWriter, r *http.Request) {
+	questionID, err := strconv.Atoi(r.PathValue("question_id"))
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	rows, err := s.Db.Query(context.Background(), `
+		SELECT
+			questions.ID, questions.quiz_id, questions.body, options.ID, options.Body
+		FROM
+			questions
+		INNER JOIN
+			options
+		ON
+			options.question_id = questions.ID
+		WHERE
+			questions.ID = $1
+		`, questionID)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var question views.DBQuestion
+	var quizID int64
+	if rows.Next() {
+		var option views.DBOption
+		if err = rows.Scan(&question.ID, &question.Body, &quizID, &option.ID, &option.Body); err != nil {
+			log.Println(err)
+		}
+		question.Options = []views.DBOption{option}
+	}
+	for rows.Next() {
+		var option views.DBOption
+		if err = rows.Scan(nil, nil, nil, &option.ID, &option.Body); err != nil {
+			log.Println(err)
+		}
+		question.Options = append(question.Options, option)
+	}
+	component := views.Question(strconv.Itoa(int(quizID)), question)
+	if err = component.Render(r.Context(), w); err != nil {
+		log.Println(err)
+	}
+}

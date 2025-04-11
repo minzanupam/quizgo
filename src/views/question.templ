@@ -1,7 +1,7 @@
 package views
 
 templ Question(quizID string, question DBQuestion) {
-	<li class="question-block">
+	<li class="question-block" hx-target="this">
 		{question.Body}
 		<ol type="a" id={"option-list-" + question.ID}>
 			for _, option := range question.Options {
@@ -12,5 +12,6 @@ templ Question(quizID string, question DBQuestion) {
 			<input type="text" name="option_body" />
 			<button>add option</button>
 		</form>
+		<button hx-get={"/dashboard/quiz/question/" + question.ID + "/edit"}>edit</button>
 	</li>
 }
