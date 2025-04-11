@@ -78,6 +78,7 @@ func HttpService() {
 	mux.HandleFunc("POST /quiz/{quiz_id}/{question_id}/option", s.optionAddNewApiHandle)
 
 	mux.HandleFunc("PUT /quiz/{quiz_id}/question/{question_id}", s.questionUpdateNameHandle)
+	mux.HandleFunc("PUT /dashboard/quiz/question/{question_id}/edit", s.questionUpdateValuesHandler)
 
 	if err = http.ListenAndServe(":4000", LoggingMiddleware(mux)); err != nil {
 		log.Fatal(err)

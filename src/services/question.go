@@ -116,7 +116,7 @@ func (s *Service) questionEditPage(w http.ResponseWriter, r *http.Request) {
 	var quizID int64
 	if rows.Next() {
 		var option views.DBOption
-		if err = rows.Scan(&question.ID, &question.Body, &quizID, &option.ID, &option.Body); err != nil {
+		if err = rows.Scan(&question.ID, &quizID, &question.Body, &option.ID, &option.Body); err != nil {
 			log.Println(err)
 		}
 		question.Options = []views.DBOption{option}
@@ -128,8 +128,13 @@ func (s *Service) questionEditPage(w http.ResponseWriter, r *http.Request) {
 		}
 		question.Options = append(question.Options, option)
 	}
-	component := views.Question(strconv.Itoa(int(quizID)), question)
+	component := views.QuestionEditComponent(strconv.Itoa(int(quizID)), question)
 	if err = component.Render(r.Context(), w); err != nil {
 		log.Println(err)
 	}
+}
+
+func (s *Service) questionUpdateValuesHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+	return
 }

@@ -15,3 +15,17 @@ templ Question(quizID string, question DBQuestion) {
 		<button hx-get={"/dashboard/quiz/question/" + question.ID + "/edit"}>edit</button>
 	</li>
 }
+
+templ QuestionEditComponent(quizID string, question DBQuestion) {
+	<form hx-put={"/dashboard/quiz/question/" + question.ID + "/edit"}>
+		<input type="text" name="question-body" value={question.Body} />
+		<ol type="a" id={"option-list-" + question.ID}>
+			for _, option := range question.Options {
+				<li>
+					<input type="text" name={"option_body-" + option.ID} value={option.Body} />
+				</li>
+			}
+		</ol>
+		<button>done</button>
+	</form>
+}
