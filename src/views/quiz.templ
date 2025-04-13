@@ -11,11 +11,6 @@ templ QuizParentPage() {
 
 templ QuizPage(quiz DBQuiz) {
 	@Index("quiz", true) {
-		<script>
-function cleanform() {
-	document.getElementById("question_body").value = "";
-}
-		</script>
 		<style>
 .question-block {
 	padding: 0.5rem;
@@ -34,7 +29,7 @@ function cleanform() {
 			<form
 				hx-post="/quiz/question"
 				hx-swap="afterbegin"
-				hx-on::after-request="cleanform()"
+				hx-on::after-request="cleanform('#question_body')"
 				hx-target="#question-list"
 			>
 				<label>Add A new question</label>

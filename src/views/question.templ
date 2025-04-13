@@ -8,9 +8,14 @@ templ Question(question DBQuestion) {
 				<li>{option.Body}</li>
 			}
 		</ol>
-		<form hx-post="/question/option" hx-swap="beforeend" hx-target={"#option-list-" + question.ID}>
+		<form
+			hx-post="/question/option"
+			hx-swap="beforeend"
+			hx-target={"#option-list-" + question.ID}
+			hx-on::after-request="cleanform('.option_body')"
+		>
 			<input type="question_id" name="question_id" value={question.ID} hidden />
-			<input type="text" name="option_body" />
+			<input type="text" name="option_body" class='option_body' />
 			<button>add option</button>
 		</form>
 		<button hx-get={"/dashboard/question/" + question.ID + "/edit"}>edit</button>

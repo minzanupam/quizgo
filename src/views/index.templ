@@ -11,6 +11,12 @@ templ Index(title string, auth bool) {
 }
 		</style>
 		<script defer src="/static/htmx.min.js"></script>
+
+		<script>
+			function cleanform(input_selector) {
+				document.querySelectorAll(input_selector).forEach(x => x.value = "");
+			}
+		</script>
 	</head>
 		<body>
 			<nav>
