@@ -16,7 +16,6 @@ function cleanform() {
 	document.getElementById("question_body").value = "";
 }
 		</script>
-		<script src="/static/alpine.min.js" defer></script>
 		<style>
 .question-block {
 	padding: 0.5rem;
@@ -32,14 +31,13 @@ function cleanform() {
 			<div>{quiz.UpdatedAt}</div>
 
 			<h2>List of Questions</h2>
-			<button @click="open = !open">add questions</button>
 			<form
 				hx-post="/quiz/question"
 				hx-swap="afterbegin"
 				hx-on::after-request="cleanform()"
 				hx-target="#question-list"
-				x-show="open"
 			>
+				<label>Add A new question</label>
 				<input type="number" name="quiz_id" value={quiz.ID} hidden />
 				<input type="text" name="question_body" id="question_body" />
 				<button>Add Question</button>
