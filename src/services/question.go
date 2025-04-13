@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -78,7 +77,7 @@ func (s *Service) questionUpdateNameHandle(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	_, err = s.DB.Exec(context.Background(), `UPDATE questions SET body
+	_, err = s.DB.Exec(r.Context(), `UPDATE questions SET body
 	= $1 WHERE quiz_id = $2 and ID = $3`, questionBody, quizID, questionID)
 	if err != nil {
 		log.Println(err)
@@ -94,7 +93,7 @@ func (s *Service) questionEditCompontentHandler(w http.ResponseWriter, r *http.R
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	rows, err := s.DB.Query(context.Background(), `
+	rows, err := s.DB.Query(r.Context(), `
 		SELECT
 			questions.ID, questions.quiz_id, questions.body, options.ID, options.Body
 		FROM
