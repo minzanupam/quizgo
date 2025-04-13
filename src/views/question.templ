@@ -13,7 +13,7 @@ templ Question(question DBQuestion) {
 			<input type="text" name="option_body" />
 			<button>add option</button>
 		</form>
-		<button hx-get={"/dashboard/quiz/question/" + question.ID + "/edit"}>edit</button>
+		<button hx-get={"/dashboard/question/" + question.ID + "/edit"}>edit</button>
 	</li>
 }
 
