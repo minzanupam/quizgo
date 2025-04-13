@@ -14,14 +14,14 @@ import (
 func (s *Service) questionBlockHandler(w http.ResponseWriter, r *http.Request) {
 }
 
-func (s *Service) questionApiAddHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Service) questionCreateHandler(w http.ResponseWriter, r *http.Request) {
 	userID, err := authenticate(s.Store, r)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	quizID, err := strconv.Atoi(r.PathValue("quiz_id"))
+	quizID, err := strconv.Atoi(r.FormValue("quiz_id"))
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -55,7 +55,7 @@ func (s *Service) questionApiAddHandler(w http.ResponseWriter, r *http.Request) 
 		ID:   strconv.Itoa(int(questionID)),
 		Body: questionBody,
 	}
-	component := views.Question(strconv.Itoa(quizID), question)
+	component := views.Question(question)
 	component.Render(r.Context(), w)
 }
 
@@ -87,7 +87,7 @@ func (s *Service) questionUpdateNameHandle(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (s *Service) questionEditPage(w http.ResponseWriter, r *http.Request) {
+func (s *Service) questionEditCompontentHandler(w http.ResponseWriter, r *http.Request) {
 	questionID, err := strconv.Atoi(r.PathValue("question_id"))
 	if err != nil {
 		log.Println(err)

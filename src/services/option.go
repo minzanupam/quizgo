@@ -7,8 +7,8 @@ import (
 	"strconv"
 )
 
-func (s *Service) optionAddNewApiHandle(w http.ResponseWriter, r *http.Request) {
-	questionID, err := strconv.Atoi(r.PathValue("question_id"))
+func (s *Service) optionCreateHandler(w http.ResponseWriter, r *http.Request) {
+	questionID, err := strconv.Atoi(r.FormValue("question_id"))
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)

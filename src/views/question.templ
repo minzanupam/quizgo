@@ -1,6 +1,6 @@
 package views
 
-templ Question(quizID string, question DBQuestion) {
+templ Question(question DBQuestion) {
 	<li class="question-block" hx-target="this">
 		{question.Body}
 		<ol type="a" id={"option-list-" + question.ID}>
@@ -8,7 +8,8 @@ templ Question(quizID string, question DBQuestion) {
 				<li>{option.Body}</li>
 			}
 		</ol>
-		<form hx-post={"/quiz/" + quizID + "/" + question.ID + "/option"} hx-swap="beforeend" hx-target={"#option-list-" + question.ID}>
+		<form hx-post="/question/option" hx-swap="beforeend" hx-target={"#option-list-" + question.ID}>
+			<input type="question_id" name="question_id" value={question.ID} hidden />
 			<input type="text" name="option_body" />
 			<button>add option</button>
 		</form>
@@ -17,8 +18,9 @@ templ Question(quizID string, question DBQuestion) {
 }
 
 templ QuestionEditComponent(quizID string, question DBQuestion) {
-	<form hx-put={"/dashboard/quiz/question/" + question.ID + "/edit"}>
-		<input type="text" name="question-body" value={question.Body} />
+	<form hx-put="/question/edit">
+		<input type="number" name="question_id" value={question.ID} hidden />
+		<input type="text" name="question_body" value={question.Body} />
 		<ol type="a" id={"option-list-" + question.ID}>
 			for _, option := range question.Options {
 				<li>

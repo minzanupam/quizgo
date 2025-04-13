@@ -23,7 +23,7 @@ func (s *Service) quizParentPageHandler(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (s *Service) quizApiHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Service) quizCreateHandler(w http.ResponseWriter, r *http.Request) {
 	userID, err := authenticate(s.Store, r)
 	if err != nil {
 		log.Println(err)
@@ -114,7 +114,7 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	quizID, err := strconv.Atoi(r.PathValue("id"))
+	quizID, err := strconv.Atoi(r.PathValue("quiz_id"))
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)

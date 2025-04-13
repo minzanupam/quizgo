@@ -12,7 +12,13 @@ templ DashboardPage(quizzes []DBQuiz) {
 					}
 				</ol>
 			</div>
-			<a href="/dashboard/quiz">create new quiz</a>
+			<form action="/quiz" method="POST">
+				<label>
+					name of the new quiz
+					<input type="text" name="quiz_title" />
+				</label>
+				<button>create</button>
+			</form>
 		</div>
 	}
 }

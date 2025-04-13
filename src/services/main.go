@@ -66,19 +66,17 @@ func HttpService() {
 	mux.HandleFunc("GET /signup", s.signupPageHandler)
 	mux.HandleFunc("GET /profile", s.profilePageHandler)
 	mux.HandleFunc("GET /dashboard", s.dashboardPageHandler)
-	mux.HandleFunc("GET /dashboard/quiz", s.quizParentPageHandler)
-	mux.HandleFunc("GET /dashboard/quiz/{id}", s.quizPageHandler)
-	mux.HandleFunc("GET /dashboard/quiz/question/{question_id}/edit", s.questionEditPage)
+	mux.HandleFunc("GET /dashboard/quiz/{quiz_id}", s.quizPageHandler)
+	mux.HandleFunc("GET /dashboard/question/{question_id}/edit", s.questionEditCompontentHandler)
 
 	mux.HandleFunc("POST /login", s.loginApiHandler)
 	mux.HandleFunc("POST /signup", s.signupApiHandler)
 	mux.HandleFunc("POST /logout", s.logoutHandler)
-	mux.HandleFunc("POST /quiz", s.quizApiHandler)
-	mux.HandleFunc("POST /quiz/{quiz_id}/question", s.questionApiAddHandler)
-	mux.HandleFunc("POST /quiz/{quiz_id}/{question_id}/option", s.optionAddNewApiHandle)
+	mux.HandleFunc("POST /quiz", s.quizCreateHandler)
+	mux.HandleFunc("POST /quiz/question", s.questionCreateHandler)
+	mux.HandleFunc("POST /question/option", s.optionCreateHandler)
 
-	mux.HandleFunc("PUT /quiz/{quiz_id}/question/{question_id}", s.questionUpdateNameHandle)
-	mux.HandleFunc("PUT /dashboard/quiz/question/{question_id}/edit", s.questionUpdateValuesHandler)
+	mux.HandleFunc("PUT /question/edit", s.questionUpdateValuesHandler)
 
 	if err = http.ListenAndServe(":4000", LoggingMiddleware(mux)); err != nil {
 		log.Fatal(err)
