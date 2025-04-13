@@ -61,7 +61,6 @@ func HttpService() {
 	fs := http.FileServer(http.Dir("public"))
 	mux.Handle("GET /static/", http.StripPrefix("/static/", fs))
 
-	mux.HandleFunc("GET /", s.rootHandler)
 	mux.HandleFunc("GET /login", s.loginPageHandler)
 	mux.HandleFunc("GET /signup", s.signupPageHandler)
 	mux.HandleFunc("GET /profile", s.profilePageHandler)
