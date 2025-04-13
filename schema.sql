@@ -5,12 +5,15 @@ CREATE TABLE users (
 	password VARCHAR NOT NULL
 );
 
+CREATE TYPE quiz_status AS ENUM ('published', 'unpublished', 'expired');
+
 CREATE TABLE quizzes (
 	ID SERIAL PRIMARY KEY,
 	title VARCHAR NOT NULL,
 	owner_id INT NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+	status QUIZ_STATUS NOT NULL,
 	FOREIGN KEY (owner_id) REFERENCES users(ID)
 );
 
