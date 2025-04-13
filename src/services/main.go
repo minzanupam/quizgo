@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/antonlindstrom/pgstore"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
 type Service struct {
-	Db    *pgx.Conn
+	Db    *pgxpool.Pool
 	Store *pgstore.PGStore
 }
 
@@ -40,11 +40,8 @@ func HttpService() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal(err)
 	}
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close(context.Background())
+	pool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	defer pool.Close()
 	store, err := pgstore.NewPGStore(os.Getenv("DATABASE_URL"), []byte(os.Getenv("SESSION_SECRET")))
 	if err != nil {
 		log.Fatal(err)
@@ -52,7 +49,7 @@ func HttpService() {
 	defer store.Close()
 	store.StopCleanup(store.Cleanup(time.Minute * 5))
 	s := Service{
-		Db:    conn,
+		Db:    pool,
 		Store: store,
 	}
 
