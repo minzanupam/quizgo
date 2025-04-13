@@ -1,6 +1,7 @@
 package services
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -167,4 +168,54 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
+}
+
+func (s *Service) quizPublishHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := authenticate(s.Store, r)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	quizID, err := strconv.Atoi(r.FormValue("quiz_id"))
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("failed to parse quiz_id"))
+		return
+	}
+
+	row := s.Db.QueryRow(r.Context(), `SELECT status FROM quizzes WHERE ID = $1 AND user_id = $2`, quizID, userID)
+	var quizStatus string
+	if err = row.Scan(&quizStatus); err != nil {
+		log.Println(err)
+		if err == sql.ErrNoRows {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if quizStatus == "published" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("quiz alread published"))
+		return
+	} else if quizStatus == "expired" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("quiz has expired"))
+		return
+	} else if quizStatus != "unpublished" {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(fmt.Errorf("unknow quiz status"))
+		return
+	}
+
+	_, err = s.Db.Exec(r.Context(), `UPDATE quizzes SET status = 'published' WHERE ID = $1`, quizID)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/dashboard", http.StatusTemporaryRedirect)
 }

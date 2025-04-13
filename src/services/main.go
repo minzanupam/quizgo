@@ -74,6 +74,7 @@ func HttpService() {
 	mux.HandleFunc("POST /quiz", s.quizCreateHandler)
 	mux.HandleFunc("POST /quiz/question", s.questionCreateHandler)
 	mux.HandleFunc("POST /question/option", s.optionCreateHandler)
+	mux.HandleFunc("POST /quiz/publish", s.quizPublishHandler)
 
 	mux.HandleFunc("PUT /question/edit", s.questionUpdateValuesHandler)
 
