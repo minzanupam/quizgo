@@ -4,6 +4,13 @@ templ DashboardPage(quizzes []DBQuiz) {
 	@Index("quiz dashboard", true) {
 		<div>
 			<h1>dashboard page</h1>
+			<form action="/quiz" method="POST">
+				<label>
+					name of the new quiz
+					<input type="text" name="quiz_title" />
+				</label>
+				<button>create</button>
+			</form>
 			<div>
 				<h3>List of Quizzes</h3>
 				<ol>
@@ -12,13 +19,6 @@ templ DashboardPage(quizzes []DBQuiz) {
 					}
 				</ol>
 			</div>
-			<form action="/quiz" method="POST">
-				<label>
-					name of the new quiz
-					<input type="text" name="quiz_title" />
-				</label>
-				<button>create</button>
-			</form>
 		</div>
 	}
 }
