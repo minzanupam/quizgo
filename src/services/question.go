@@ -33,7 +33,7 @@ func (s *Service) questionCreateHandler(w http.ResponseWriter, r *http.Request) 
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	row := s.Db.QueryRow(r.Context(), `SELECT FROM quizzes WHERE quizzes.ID = $1 and owner_id = $2`, quizID, userID)
+	row := s.DB.QueryRow(r.Context(), `SELECT FROM quizzes WHERE quizzes.ID = $1 and owner_id = $2`, quizID, userID)
 	if err = row.Scan(); err != nil {
 		log.Println(err)
 		if err == pgx.ErrNoRows {
@@ -43,7 +43,7 @@ func (s *Service) questionCreateHandler(w http.ResponseWriter, r *http.Request) 
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	row = s.Db.QueryRow(r.Context(), `INSERT INTO questions (body,
+	row = s.DB.QueryRow(r.Context(), `INSERT INTO questions (body,
 		quiz_id) VALUES ($1, $2) RETURNING ID`, questionBody, quizID)
 	var questionID int64
 	if err = row.Scan(&questionID); err != nil {
@@ -78,7 +78,7 @@ func (s *Service) questionUpdateNameHandle(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	_, err = s.Db.Exec(context.Background(), `UPDATE questions SET body
+	_, err = s.DB.Exec(context.Background(), `UPDATE questions SET body
 	= $1 WHERE quiz_id = $2 and ID = $3`, questionBody, quizID, questionID)
 	if err != nil {
 		log.Println(err)
@@ -94,7 +94,7 @@ func (s *Service) questionEditCompontentHandler(w http.ResponseWriter, r *http.R
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	rows, err := s.Db.Query(context.Background(), `
+	rows, err := s.DB.Query(context.Background(), `
 		SELECT
 			questions.ID, questions.quiz_id, questions.body, options.ID, options.Body
 		FROM

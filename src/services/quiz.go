@@ -36,7 +36,7 @@ func (s *Service) quizCreateHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	row := s.Db.QueryRow(r.Context(), `INSERT INTO quizzes (title, owner_id) VALUES ($1, $2) RETURNING ID`, quizTitle, userID)
+	row := s.DB.QueryRow(r.Context(), `INSERT INTO quizzes (title, owner_id) VALUES ($1, $2) RETURNING ID`, quizTitle, userID)
 	var quizID int64
 	if err := row.Scan(&quizID); err != nil {
 		log.Println(err)
@@ -122,7 +122,7 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := s.Db.Query(r.Context(), `
+	rows, err := s.DB.Query(r.Context(), `
 		SELECT
 			quizzes.ID, quizzes.title, quizzes.created_at, quizzes.updated_at,
 			questions.ID, questions.body, options.ID, options.body
@@ -185,7 +185,7 @@ func (s *Service) quizPublishHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	row := s.Db.QueryRow(r.Context(), `SELECT status FROM quizzes WHERE ID = $1 AND user_id = $2`, quizID, userID)
+	row := s.DB.QueryRow(r.Context(), `SELECT status FROM quizzes WHERE ID = $1 AND user_id = $2`, quizID, userID)
 	var quizStatus string
 	if err = row.Scan(&quizStatus); err != nil {
 		log.Println(err)
@@ -210,7 +210,7 @@ func (s *Service) quizPublishHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.Db.Exec(r.Context(), `UPDATE quizzes SET status = 'published' WHERE ID = $1`, quizID)
+	_, err = s.DB.Exec(r.Context(), `UPDATE quizzes SET status = 'published' WHERE ID = $1`, quizID)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

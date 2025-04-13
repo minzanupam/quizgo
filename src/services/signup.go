@@ -32,7 +32,7 @@ func (s *Service) signupApiHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	row := s.Db.QueryRow(r.Context(), `INSERT INTO users (fullname, email,
+	row := s.DB.QueryRow(r.Context(), `INSERT INTO users (fullname, email,
 		password) VALUES ($1, $2, $3) RETURNING ID`, req_fullname,
 		req_email, req_password)
 	var userID int64

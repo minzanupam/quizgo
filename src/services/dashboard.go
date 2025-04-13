@@ -14,13 +14,13 @@ func (s *Service) dashboardPageHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login?redirect_url=%2Fdashboard", http.StatusTemporaryRedirect)
 	}
 	var user views.DBUser
-	row := s.Db.QueryRow(r.Context(), `SELECT ID, fullname, email FROM users WHERE ID = $1`, userID)
+	row := s.DB.QueryRow(r.Context(), `SELECT ID, fullname, email FROM users WHERE ID = $1`, userID)
 	if err = row.Scan(&user.ID, &user.FullName, &user.Email); err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	rows, err := s.Db.Query(r.Context(), `SELECT quizzes.ID, title, 
+	rows, err := s.DB.Query(r.Context(), `SELECT quizzes.ID, title, 
 		created_at, updated_at FROM quizzes WHERE owner_id = $1`, userID)
 	defer rows.Close()
 	if err != nil {

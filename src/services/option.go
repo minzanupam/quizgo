@@ -21,7 +21,7 @@ func (s *Service) optionCreateHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("option body missing"))
 		return
 	}
-	row := s.Db.QueryRow(r.Context(), `INSERT INTO options (body,
+	row := s.DB.QueryRow(r.Context(), `INSERT INTO options (body,
 		question_id) VALUES ($1, $2) RETURNING ID`, optionBody,
 		questionID)
 	var option views.DBOption

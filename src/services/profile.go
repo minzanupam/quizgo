@@ -42,7 +42,7 @@ func (s *Service) profilePageHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	row := s.Db.QueryRow(r.Context(), `SELECT ID, fullname, email FROM users WHERE ID = $1`, userID)
+	row := s.DB.QueryRow(r.Context(), `SELECT ID, fullname, email FROM users WHERE ID = $1`, userID)
 	var user views.DBUser
 	if err := row.Scan(&user.ID, &user.FullName, &user.Email); err != nil {
 		log.Println(err)

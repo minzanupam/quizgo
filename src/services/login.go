@@ -45,7 +45,7 @@ func (s *Service) loginApiHandler(w http.ResponseWriter, r *http.Request) {
 	if redirectUrl == "" {
 		redirectUrl = "/"
 	}
-	row := s.Db.QueryRow(r.Context(), `SELECT ID, email, password FROM users WHERE email = $1`, req_email)
+	row := s.DB.QueryRow(r.Context(), `SELECT ID, email, password FROM users WHERE email = $1`, req_email)
 	var user User
 	if err := row.Scan(&user.ID, &user.Email, &user.Password); err != nil {
 		if err != pgx.ErrNoRows {

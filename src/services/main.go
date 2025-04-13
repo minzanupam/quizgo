@@ -14,7 +14,7 @@ import (
 )
 
 type Service struct {
-	Db    *pgxpool.Pool
+	DB    *pgxpool.Pool
 	Store *pgstore.PGStore
 }
 
@@ -49,7 +49,7 @@ func HttpService() {
 	defer store.Close()
 	store.StopCleanup(store.Cleanup(time.Minute * 5))
 	s := Service{
-		Db:    pool,
+		DB:    pool,
 		Store: store,
 	}
 
