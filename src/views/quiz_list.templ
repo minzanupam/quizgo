@@ -1,0 +1,14 @@
+package views
+
+templ QuizListPage(quizzes []DBQuiz) {
+	@Index("start quiz", false) {
+		<h1>Quizzes available</h1>
+		<div>
+			for _, quiz := range quizzes {
+				<div>
+					{quiz.Title}
+				</div>
+			}
+		</div>
+	}
+}

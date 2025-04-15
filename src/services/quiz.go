@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -185,6 +186,13 @@ func (s *Service) quizPublishHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	tx, err := s.DB.Begin(r.Context())
+	defer tx.Rollback(context.Background())
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	row := s.DB.QueryRow(r.Context(), `SELECT status FROM quizzes WHERE ID = $1 AND user_id = $2`, quizID, userID)
 	var quizStatus string
 	if err = row.Scan(&quizStatus); err != nil {
