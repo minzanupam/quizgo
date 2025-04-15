@@ -6,7 +6,7 @@ templ LoginPage(err error, redirectUrl string) {
 			if err != nil {
 				<div>{ err.Error() }</div>
 			}
-			<input type="text" name="redirect_url" value={ redirectUrl } hidden />
+			<input type="text" name="redirect_url" value={ redirectUrl } readonly hidden />
 			<label> email <input type="email" name="email" /> </label>
 			<label> password <input type="password" name="password" /> </label>
 			<button> login </button>

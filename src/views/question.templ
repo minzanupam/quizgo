@@ -14,7 +14,7 @@ templ Question(question DBQuestion) {
 			hx-target={"#option-list-" + question.ID}
 			hx-on::after-request="cleanform('.option_body')"
 		>
-			<input type="question_id" name="question_id" value={question.ID} hidden />
+			<input type="question_id" name="question_id" value={question.ID} readonly hidden />
 			<input type="text" name="option_body" class='option_body' />
 			<button>add option</button>
 		</form>
@@ -24,7 +24,7 @@ templ Question(question DBQuestion) {
 
 templ QuestionEditComponent(quizID string, question DBQuestion) {
 	<form hx-put="/question/edit">
-		<input type="number" name="question_id" value={question.ID} hidden />
+		<input type="number" name="question_id" value={question.ID} readonly hidden />
 		<input type="text" name="question_body" value={question.Body} />
 		<ol type="a" id={"option-list-" + question.ID}>
 			for _, option := range question.Options {

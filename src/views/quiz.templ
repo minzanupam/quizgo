@@ -41,7 +41,7 @@ templ QuizPage(quiz DBQuiz) {
 				hx-target="#question-list"
 			>
 				<label>Add A new question</label>
-				<input type="number" name="quiz_id" value={quiz.ID} hidden />
+				<input type="number" name="quiz_id" value={quiz.ID} readonly hidden />
 				<input type="text" name="question_body" id="question_body" />
 				<button>Add Question</button>
 			</form>
