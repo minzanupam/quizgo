@@ -13,6 +13,7 @@ type DBQuiz struct {
 	Questions []DBQuestion
 	CreatedAt string
 	UpdatedAt string
+	Status    string
 }
 
 type DBQuestion struct {

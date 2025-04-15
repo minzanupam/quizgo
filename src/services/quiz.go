@@ -52,6 +52,7 @@ type QuizRow struct {
 	Title        string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	Status       string
 	QuestionID   *int64
 	QuestionBody *string
 	OptionID     *int64
@@ -80,6 +81,7 @@ func parseRowsToQuiz(rows []QuizRow) (views.DBQuiz, error) {
 	quiz.Title = row1.Title
 	quiz.CreatedAt = row1.CreatedAt.Format(time.RFC3339)
 	quiz.UpdatedAt = row1.UpdatedAt.Format(time.RFC3339)
+	quiz.Status = row1.Status
 	if row1.QuestionID == nil {
 		return quiz, nil
 	}
@@ -125,8 +127,9 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := s.DB.Query(r.Context(), `
 		SELECT
-			quizzes.ID, quizzes.title, quizzes.created_at, quizzes.updated_at,
-			questions.ID, questions.body, options.ID, options.body
+			quizzes.ID, quizzes.title, quizzes.created_at,
+			quizzes.updated_at, quizzes.status, questions.ID,
+			questions.body, options.ID, options.body
 		FROM
 			quizzes
 		LEFT JOIN
@@ -150,7 +153,7 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var row QuizRow
 		err = rows.Scan(&row.ID, &row.Title, &row.CreatedAt,
-			&row.UpdatedAt, &row.QuestionID, &row.QuestionBody, &row.OptionID, &row.OptionBody)
+			&row.UpdatedAt, &row.Status, &row.QuestionID, &row.QuestionBody, &row.OptionID, &row.OptionBody)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -193,7 +196,7 @@ func (s *Service) quizPublishHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	row := s.DB.QueryRow(r.Context(), `SELECT status FROM quizzes WHERE ID = $1 AND user_id = $2`, quizID, userID)
+	row := s.DB.QueryRow(r.Context(), `SELECT status FROM quizzes WHERE ID = $1 AND owner_id = $2`, quizID, userID)
 	var quizStatus string
 	if err = row.Scan(&quizStatus); err != nil {
 		log.Println(err)
@@ -225,5 +228,5 @@ func (s *Service) quizPublishHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/dashboard", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }

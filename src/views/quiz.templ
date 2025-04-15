@@ -25,6 +25,14 @@ templ QuizPage(quiz DBQuiz) {
 			<div>{quiz.CreatedAt}</div>
 			<div>{quiz.UpdatedAt}</div>
 
+			<div>current status = {quiz.Status}</div>
+			if quiz.Status != "published" {
+				<form action="/quiz/publish" method="POST">
+					<input type="number" name="quiz_id" value={quiz.ID} readonly hidden />
+					<button>publish</button>
+				</form>
+			}
+
 			<h2>List of Questions</h2>
 			<form
 				hx-post="/quiz/question"
