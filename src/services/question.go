@@ -134,6 +134,35 @@ func (s *Service) questionEditCompontentHandler(w http.ResponseWriter, r *http.R
 }
 
 func (s *Service) questionUpdateValuesHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	type Question struct {
+		ID   int64
+		Body string
+	}
+	var req_question Question
+	var err error
+	req_question.ID, err = strconv.ParseInt(r.FormValue("question_id"), 10, 64)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	req_question.Body = r.FormValue("question_body")
+	if req_question.Body == "" {
+		log.Println("question body is empty")
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+	if _, err = s.DB.Exec(r.Context(), `
+		UPDATE
+			questions
+		SET
+			question.body = $1
+		WHERE
+			question.ID = $2
+		`, req_question.Body, req_question.ID); err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	return
 }
