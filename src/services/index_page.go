@@ -9,7 +9,10 @@ import (
 )
 
 func (s *Service) indexPageHandler(w http.ResponseWriter, r *http.Request) {
-	rows, err := s.DB.Query(r.Context(), `SELECT ID, title, created_at, updated_at FROM quizzes WHERE status = 'published'`)
+	rows, err := s.DB.Query(r.Context(), `
+		SELECT ID, title, created_at, updated_at
+		FROM quizzes
+		WHERE status = 'published'`)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

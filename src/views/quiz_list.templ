@@ -6,7 +6,7 @@ templ QuizListPage(quizzes []DBQuiz) {
 		<div>
 			for _, quiz := range quizzes {
 				<div>
-					{quiz.Title}
+					<a href={templ.URL("/attempt/" + quiz.ID)}>{quiz.Title}</a>
 				</div>
 			}
 		</div>
