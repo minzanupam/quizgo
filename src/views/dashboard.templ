@@ -12,10 +12,22 @@ templ DashboardPage(quizzes []DBQuiz) {
 				<button>create</button>
 			</form>
 			<div>
-				<h3>List of Quizzes</h3>
+				<h3>List of Published Quizzes</h3>
 				<ol>
 					for _, quiz := range quizzes {
-						<li><a href={templ.URL("/dashboard/quiz/" + quiz.ID)}> {quiz.Title} </a></li>
+						if quiz.Status == "published" {
+							<li><a href={templ.URL("/dashboard/quiz/" + quiz.ID)}> {quiz.Title} </a></li>
+						}
+					}
+				</ol>
+			</div>
+			<div>
+				<h3>List of Unpublished Quizzes</h3>
+				<ol>
+					for _, quiz := range quizzes {
+						if quiz.Status == "unpublished" {
+							<li><a href={templ.URL("/dashboard/quiz/" + quiz.ID)}> {quiz.Title} </a></li>
+						}
 					}
 				</ol>
 			</div>

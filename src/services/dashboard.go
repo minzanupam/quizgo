@@ -24,7 +24,7 @@ func (s *Service) dashboardPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rows, err := s.DB.Query(r.Context(), `
-		SELECT quizzes.ID, title, created_at, updated_at 
+		SELECT quizzes.ID, title, created_at, updated_at, status
 		FROM quizzes
 		WHERE owner_id = $1`, userID)
 	defer rows.Close()
@@ -38,7 +38,7 @@ func (s *Service) dashboardPageHandler(w http.ResponseWriter, r *http.Request) {
 		var quiz views.DBQuiz
 		var createdAt time.Time
 		var updatedAt time.Time
-		if err = rows.Scan(&quiz.ID, &quiz.Title, &createdAt, &updatedAt); err != nil {
+		if err = rows.Scan(&quiz.ID, &quiz.Title, &createdAt, &updatedAt, &quiz.Status); err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
