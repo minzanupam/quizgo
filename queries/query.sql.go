@@ -27,6 +27,53 @@ func (q *Queries) CreateQuiz(ctx context.Context, arg CreateQuizParams) (int32, 
 	return id, err
 }
 
+const getQuestion = `-- name: GetQuestion :many
+SELECT
+	questions.ID, questions.quiz_id, questions.body, options.ID, options.Body
+FROM
+	questions
+INNER JOIN
+	options
+ON
+	options.question_id = questions.ID
+WHERE
+	questions.ID = $1
+`
+
+type GetQuestionRow struct {
+	ID     int32
+	QuizID int32
+	Body   string
+	ID_2   int32
+	Body_2 string
+}
+
+func (q *Queries) GetQuestion(ctx context.Context, id int32) ([]GetQuestionRow, error) {
+	rows, err := q.db.Query(ctx, getQuestion, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetQuestionRow
+	for rows.Next() {
+		var i GetQuestionRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.QuizID,
+			&i.Body,
+			&i.ID_2,
+			&i.Body_2,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getQuiz = `-- name: GetQuiz :many
 SELECT
 	quiz.ID,

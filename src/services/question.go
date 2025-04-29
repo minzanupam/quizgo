@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"quizgo/queries"
 	"quizgo/src/views"
 	"strconv"
 
@@ -86,6 +87,23 @@ func (s *Service) questionUpdateNameHandle(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+func parseQuestion(rows []queries.GetQuestionRow) (views.DBQuestion, error) {
+	if len(rows) == 0 {
+		return views.DBQuestion{}, fmt.Errorf("failed to parse question: no rows")
+	}
+	var question views.DBQuestion
+	question.ID = strconv.Itoa(int(rows[0].ID))
+	question.Body = rows[0].Body
+	var options []views.DBOption
+	for _, row := range rows {
+		var option views.DBOption
+		option.ID = strconv.Itoa(int(row.ID_2))
+		option.Body = row.Body_2
+		options = append(options, option)
+	}
+	return question, nil
+}
+
 func (s *Service) questionEditCompontentHandler(w http.ResponseWriter, r *http.Request) {
 	questionID, err := strconv.Atoi(r.PathValue("question_id"))
 	if err != nil {
@@ -93,40 +111,19 @@ func (s *Service) questionEditCompontentHandler(w http.ResponseWriter, r *http.R
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	rows, err := s.DB.Query(r.Context(), `
-		SELECT
-			questions.ID, questions.quiz_id, questions.body, options.ID, options.Body
-		FROM
-			questions
-		INNER JOIN
-			options
-		ON
-			options.question_id = questions.ID
-		WHERE
-			questions.ID = $1
-		`, questionID)
+	rows, err := s.Queries.GetQuestion(r.Context(), int32(questionID))
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	var question views.DBQuestion
-	var quizID int64
-	if rows.Next() {
-		var option views.DBOption
-		if err = rows.Scan(&question.ID, &quizID, &question.Body, &option.ID, &option.Body); err != nil {
-			log.Println(err)
-		}
-		question.Options = []views.DBOption{option}
+	if len(rows) == 0 {
+		log.Println(fmt.Errorf("failed to parse rows: no rows"))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
-	for rows.Next() {
-		var option views.DBOption
-		if err = rows.Scan(nil, nil, nil, &option.ID, &option.Body); err != nil {
-			log.Println(err)
-		}
-		question.Options = append(question.Options, option)
-	}
+	question, err := parseQuestion(rows)
+	quizID := rows[0].QuizID
 	component := views.QuestionEditComponent(strconv.Itoa(int(quizID)), question)
 	if err = component.Render(r.Context(), w); err != nil {
 		log.Println(err)

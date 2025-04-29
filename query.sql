@@ -33,3 +33,15 @@ SELECT status FROM quizzes WHERE ID = $1 AND owner_id = $2;
 
 -- name: UpdateQuizStatusPublish :exec
 UPDATE quizzes SET status = 'published' WHERE ID = $1;
+
+-- name: GetQuestion :many
+SELECT
+	questions.ID, questions.quiz_id, questions.body, options.ID, options.Body
+FROM
+	questions
+INNER JOIN
+	options
+ON
+	options.question_id = questions.ID
+WHERE
+	questions.ID = $1;
