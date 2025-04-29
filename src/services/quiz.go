@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"quizgo/queries"
 	"quizgo/src/views"
 	"sort"
 	"strconv"
@@ -47,19 +48,7 @@ func (s *Service) quizCreateHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/dashboard/quiz/%d", int(quizID)), http.StatusFound)
 }
 
-type QuizRow struct {
-	ID           int64
-	Title        string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	Status       string
-	QuestionID   *int64
-	QuestionBody *string
-	OptionID     *int64
-	OptionBody   *string
-}
-
-func parseRowsToQuiz(rows []QuizRow) (views.DBQuiz, error) {
+func parseRowsToQuiz(rows []queries.GetQuizRow) (views.DBQuiz, error) {
 	var quiz views.DBQuiz
 	if len(rows) < 1 {
 		return views.DBQuiz{}, fmt.Errorf("failed to parse rows with Error: insuffient number of rows")
@@ -68,42 +57,45 @@ func parseRowsToQuiz(rows []QuizRow) (views.DBQuiz, error) {
 		if rows[i].ID != rows[j].ID {
 			return rows[i].ID < rows[j].ID
 		}
-		if rows[i].QuestionID != nil && rows[j].QuestionID != nil && *rows[i].QuestionID != *rows[j].QuestionID {
-			return *rows[i].QuestionID < *rows[j].QuestionID
+		if rows[i].ID_2.Valid && rows[j].ID_2.Valid && rows[i].ID_2.Int32 != rows[j].ID_2.Int32 {
+			return rows[i].ID_2.Int32 < rows[j].ID_2.Int32
 		}
-		if rows[i].OptionID != nil && rows[j].OptionID != nil && *rows[i].OptionID != *rows[j].OptionID {
-			return *rows[i].OptionID < *rows[j].OptionID
+		if rows[i].ID_3.Valid && rows[j].ID_3.Valid && rows[i].ID_3.Int32 != rows[j].ID_3.Int32 {
+			return rows[i].ID_3.Int32 < rows[j].ID_3.Int32
 		}
 		return false
 	})
 	row1 := rows[0]
 	quiz.ID = strconv.Itoa(int(row1.ID))
 	quiz.Title = row1.Title
-	quiz.CreatedAt = row1.CreatedAt.Format(time.RFC3339)
-	quiz.UpdatedAt = row1.UpdatedAt.Format(time.RFC3339)
-	quiz.Status = row1.Status
-	if row1.QuestionID == nil {
+	quiz.CreatedAt = row1.CreatedAt.Time.Format(time.RFC3339)
+	quiz.UpdatedAt = row1.UpdatedAt.Time.Format(time.RFC3339)
+	if err := row1.Status.Scan(quiz.Status); err != nil {
+		return views.DBQuiz{}, err
+	}
+	if !row1.ID_2.Valid {
+		log.Println(fmt.Errorf("failed to parse question id"))
 		return quiz, nil
 	}
 	pqi := 0 // previous question index
 	for i, row := range rows {
-		if i > 0 && quiz.Questions[pqi-1].ID == strconv.Itoa(int(*row.QuestionID)) && row.OptionID != nil {
+		if i > 0 && quiz.Questions[pqi-1].ID == strconv.Itoa(int(row.ID_2.Int32)) && row.ID_3.Valid {
 			quiz.Questions[pqi-1].Options = append(quiz.Questions[pqi-1].Options, views.DBOption{
-				ID:   strconv.Itoa(int(*row.OptionID)),
-				Body: *row.OptionBody,
+				ID:   strconv.Itoa(int(row.ID_3.Int32)),
+				Body: row.Body_2.String,
 			})
 			continue
 		}
 		options := make([]views.DBOption, 0)
-		if row.OptionID != nil {
+		if row.ID_3.Valid {
 			options = append(options, views.DBOption{
-				ID:   strconv.Itoa(int(*row.OptionID)),
-				Body: *row.OptionBody,
+				ID:   strconv.Itoa(int(row.ID_3.Int32)),
+				Body: row.Body_2.String,
 			})
 		}
 		quiz.Questions = append(quiz.Questions, views.DBQuestion{
-			ID:      strconv.Itoa(int(*row.QuestionID)),
-			Body:    *row.QuestionBody,
+			ID:      strconv.Itoa(int(row.ID_2.Int32)),
+			Body:    row.Body.String,
 			Options: options,
 		})
 		pqi += 1
@@ -125,43 +117,16 @@ func (s *Service) quizPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := s.DB.Query(r.Context(), `
-		SELECT
-			quizzes.ID, quizzes.title, quizzes.created_at,
-			quizzes.updated_at, quizzes.status, questions.ID,
-			questions.body, options.ID, options.body
-		FROM
-			quizzes
-		LEFT JOIN
-			questions
-		ON
-			quizzes.ID = questions.quiz_id
-		LEFT JOIN
-			options
-		ON
-			questions.ID = options.question_id
-		WHERE
-			quizzes.ID = $1
-			AND owner_id = $2
-	`, quizID, userID)
+	rows, err := s.Queries.GetQuiz(r.Context(), queries.GetQuizParams{
+		ID:      int32(quizID),
+		OwnerID: int32(userID),
+	})
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	var quiz_rows []QuizRow
-	for rows.Next() {
-		var row QuizRow
-		err = rows.Scan(&row.ID, &row.Title, &row.CreatedAt,
-			&row.UpdatedAt, &row.Status, &row.QuestionID, &row.QuestionBody, &row.OptionID, &row.OptionBody)
-		if err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		quiz_rows = append(quiz_rows, row)
-	}
-	quiz, err := parseRowsToQuiz(quiz_rows)
+	quiz, err := parseRowsToQuiz(rows)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
