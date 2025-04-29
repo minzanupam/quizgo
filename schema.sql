@@ -21,6 +21,8 @@ CREATE TABLE questions (
 	ID SERIAL PRIMARY KEY,
 	body VARCHAR NOT NULL,
 	quiz_id INT NOT NULL,
+	created_at TIMESTAMP DEFAULT NOW(),
+	updated_at TIMESTAMP DEFAULT NOW(),
 	FOREIGN KEY (quiz_id) REFERENCES quizzes(ID)
 );
 
