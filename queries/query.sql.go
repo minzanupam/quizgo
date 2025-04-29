@@ -100,3 +100,28 @@ func (q *Queries) GetQuiz(ctx context.Context, arg GetQuizParams) ([]GetQuizRow,
 	}
 	return items, nil
 }
+
+const getQuizStatus = `-- name: GetQuizStatus :one
+SELECT status FROM quizzes WHERE ID = $1 AND owner_id = $2
+`
+
+type GetQuizStatusParams struct {
+	ID      int32
+	OwnerID int32
+}
+
+func (q *Queries) GetQuizStatus(ctx context.Context, arg GetQuizStatusParams) (QuizStatus, error) {
+	row := q.db.QueryRow(ctx, getQuizStatus, arg.ID, arg.OwnerID)
+	var status QuizStatus
+	err := row.Scan(&status)
+	return status, err
+}
+
+const updateQuizStatusPublish = `-- name: UpdateQuizStatusPublish :exec
+UPDATE quizzes SET status = 'published' WHERE ID = $1
+`
+
+func (q *Queries) UpdateQuizStatusPublish(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, updateQuizStatusPublish, id)
+	return err
+}

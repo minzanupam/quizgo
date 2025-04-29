@@ -163,9 +163,17 @@ func (s *Service) quizPublishHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	row := s.DB.QueryRow(r.Context(), `SELECT status FROM quizzes WHERE ID = $1 AND owner_id = $2`, quizID, userID)
+	row, err := s.Queries.GetQuizStatus(r.Context(), queries.GetQuizStatusParams{
+		ID:      int32(quizID),
+		OwnerID: int32(userID),
+	})
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	var quizStatus string
-	if err = row.Scan(&quizStatus); err != nil {
+	if err = row.Scan(quizStatus); err != nil {
 		log.Println(err)
 		if err == sql.ErrNoRows {
 			w.WriteHeader(http.StatusForbidden)
@@ -188,8 +196,7 @@ func (s *Service) quizPublishHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.DB.Exec(r.Context(), `UPDATE quizzes SET status = 'published' WHERE ID = $1`, quizID)
-	if err != nil {
+	if err = s.Queries.UpdateQuizStatusPublish(r.Context(), int32(quizID)); err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

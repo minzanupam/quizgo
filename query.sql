@@ -27,3 +27,9 @@ AND
 
 -- name: CreateQuiz :one
 INSERT INTO quizzes (title, owner_id) VALUES ($1, $2) RETURNING ID;
+
+-- name: GetQuizStatus :one
+SELECT status FROM quizzes WHERE ID = $1 AND owner_id = $2;
+
+-- name: UpdateQuizStatusPublish :exec
+UPDATE quizzes SET status = 'published' WHERE ID = $1;
