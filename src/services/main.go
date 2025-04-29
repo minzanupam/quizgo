@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"quizgo/queries"
 	"quizgo/src/views"
 	"time"
 
@@ -14,8 +15,9 @@ import (
 )
 
 type Service struct {
-	DB    *pgxpool.Pool
-	Store *pgstore.PGStore
+	DB      *pgxpool.Pool
+	Store   *pgstore.PGStore
+	Queries *queries.Queries
 }
 
 func (s *Service) rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -48,9 +50,11 @@ func HttpService() {
 	}
 	defer store.Close()
 	store.StopCleanup(store.Cleanup(time.Minute * 5))
+	queries := queries.New(pool)
 	s := Service{
-		DB:    pool,
-		Store: store,
+		DB:      pool,
+		Store:   store,
+		Queries: queries,
 	}
 
 	mux := http.NewServeMux()
