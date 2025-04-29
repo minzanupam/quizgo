@@ -11,6 +11,22 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createQuiz = `-- name: CreateQuiz :one
+INSERT INTO quizzes (title, owner_id) VALUES ($1, $2) RETURNING ID
+`
+
+type CreateQuizParams struct {
+	Title   string
+	OwnerID int32
+}
+
+func (q *Queries) CreateQuiz(ctx context.Context, arg CreateQuizParams) (int32, error) {
+	row := q.db.QueryRow(ctx, createQuiz, arg.Title, arg.OwnerID)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getQuiz = `-- name: GetQuiz :many
 SELECT
 	quiz.ID,

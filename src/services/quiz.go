@@ -38,9 +38,11 @@ func (s *Service) quizCreateHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	row := s.DB.QueryRow(r.Context(), `INSERT INTO quizzes (title, owner_id) VALUES ($1, $2) RETURNING ID`, quizTitle, userID)
-	var quizID int64
-	if err := row.Scan(&quizID); err != nil {
+	quizID, err := s.Queries.CreateQuiz(r.Context(), queries.CreateQuizParams{
+		Title:   quizTitle,
+		OwnerID: int32(userID),
+	})
+	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

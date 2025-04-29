@@ -24,3 +24,6 @@ WHERE
 AND
 	owner_id = $2;
 
+
+-- name: CreateQuiz :one
+INSERT INTO quizzes (title, owner_id) VALUES ($1, $2) RETURNING ID;
