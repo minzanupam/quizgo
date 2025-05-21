@@ -13,7 +13,7 @@ CREATE TABLE quizzes (
 	owner_id INT NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-	status QUIZ_STATUS NOT NULL,
+	status QUIZ_STATUS NOT NULL DEFAULT 'unpublished',
 	FOREIGN KEY (owner_id) REFERENCES users(ID)
 );
 
